@@ -8,17 +8,15 @@
 // ignore_for_file: directives_ordering,unnecessary_import,implicit_dynamic_list_literal
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter/services.dart';
 
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
   /// File path: assets/icons/icon_drink.svg
-  SvgGenImage get iconDrink => const SvgGenImage('assets/icons/icon_drink.svg');
+  String get iconDrink => 'assets/icons/icon_drink.svg';
 
   /// File path: assets/icons/icon_food.svg
-  SvgGenImage get iconFood => const SvgGenImage('assets/icons/icon_food.svg');
+  String get iconFood => 'assets/icons/icon_food.svg';
 
   /// File path: assets/icons/logo_restaurant.png
   AssetGenImage get logoRestaurant =>
@@ -32,19 +30,17 @@ class $AssetsImagesGen {
   const $AssetsImagesGen();
 
   /// File path: assets/images/illustration_no_connection.svg
-  SvgGenImage get illustrationNoConnection =>
-      const SvgGenImage('assets/images/illustration_no_connection.svg');
+  String get illustrationNoConnection =>
+      'assets/images/illustration_no_connection.svg';
 
   /// File path: assets/images/illustration_notfound.svg
-  SvgGenImage get illustrationNotfound =>
-      const SvgGenImage('assets/images/illustration_notfound.svg');
+  String get illustrationNotfound => 'assets/images/illustration_notfound.svg';
 
   /// File path: assets/images/illustration_question.svg
-  SvgGenImage get illustrationQuestion =>
-      const SvgGenImage('assets/images/illustration_question.svg');
+  String get illustrationQuestion => 'assets/images/illustration_question.svg';
 
   /// List of all assets
-  List<SvgGenImage> get values =>
+  List<String> get values =>
       [illustrationNoConnection, illustrationNotfound, illustrationQuestion];
 }
 
@@ -114,57 +110,6 @@ class AssetGenImage {
   }
 
   ImageProvider provider() => AssetImage(_assetName);
-
-  String get path => _assetName;
-
-  String get keyName => _assetName;
-}
-
-class SvgGenImage {
-  const SvgGenImage(this._assetName);
-
-  final String _assetName;
-
-  SvgPicture svg({
-    Key? key,
-    bool matchTextDirection = false,
-    AssetBundle? bundle,
-    String? package,
-    double? width,
-    double? height,
-    BoxFit fit = BoxFit.contain,
-    AlignmentGeometry alignment = Alignment.center,
-    bool allowDrawingOutsideViewBox = false,
-    WidgetBuilder? placeholderBuilder,
-    Color? color,
-    BlendMode colorBlendMode = BlendMode.srcIn,
-    String? semanticsLabel,
-    bool excludeFromSemantics = false,
-    Clip clipBehavior = Clip.hardEdge,
-    bool cacheColorFilter = false,
-    SvgTheme? theme,
-  }) {
-    return SvgPicture.asset(
-      _assetName,
-      key: key,
-      matchTextDirection: matchTextDirection,
-      bundle: bundle,
-      package: package,
-      width: width,
-      height: height,
-      fit: fit,
-      alignment: alignment,
-      allowDrawingOutsideViewBox: allowDrawingOutsideViewBox,
-      placeholderBuilder: placeholderBuilder,
-      color: color,
-      colorBlendMode: colorBlendMode,
-      semanticsLabel: semanticsLabel,
-      excludeFromSemantics: excludeFromSemantics,
-      clipBehavior: clipBehavior,
-      cacheColorFilter: cacheColorFilter,
-      theme: theme,
-    );
-  }
 
   String get path => _assetName;
 

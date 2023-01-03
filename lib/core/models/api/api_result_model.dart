@@ -1,7 +1,7 @@
 class ApiReslut<T extends Serializable> {
   bool? error;
   String? message;
-  T data;
+  T? data;
 
   ApiReslut({
     required this.error,
@@ -21,7 +21,7 @@ class ApiReslut<T extends Serializable> {
   Map<String, dynamic> toJson() => {
         "message": message,
         "error": error,
-        "data": data.toJson(),
+        "data": data?.toJson(),
       };
 }
 

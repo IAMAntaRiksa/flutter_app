@@ -11,6 +11,9 @@ Color get primaryColor => const Color(0xffF14756);
 Color get blackColor => const Color(0xff14142B);
 Color get grayColor => const Color(0xff9098B1);
 Color get grayDarkColor => const Color(0xff6F7789);
+Color blackGrayColor = const Color(0xff2D2E30);
+Color blackBGColor = const Color(0xff15161A);
+Color darkColor = const Color(0xFF212121);
 
 /// --------------
 /// Asset Location
@@ -111,6 +114,15 @@ void setupScreenUtil(BuildContext context) {
   );
 }
 
+bool isLargePhone(BuildContext context) =>
+    MediaQuery.of(context).size.width > 600 ? true : false;
+bool isNormalPhone(BuildContext context) =>
+    MediaQuery.of(context).size.width > 400 &&
+            MediaQuery.of(context).size.width < 600
+        ? true
+        : false;
+bool isSmallPhone(BuildContext context) =>
+    MediaQuery.of(context).size.width < 400 ? true : false;
 bool isSmallPhoneHeight(BuildContext context) =>
     MediaQuery.of(context).size.height < 700 ? true : false;
 bool isReallySmallPhoneHeight(BuildContext context) =>

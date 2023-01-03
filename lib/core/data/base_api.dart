@@ -1,8 +1,13 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:app/core/data/api.dart';
 import 'package:app/core/data/base_api_impl.dart';
 import 'package:app/core/models/api/api_response.dart';
+import 'package:app/core/untils/navigation/navigation_untlis.dart';
+import 'package:app/core/viewmodels/connection/connection_provider.dart';
 import 'package:app/injector.dart';
 import 'package:dio/dio.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class BaseAPI implements BaseAPIImpl {
   Dio? _dio;
@@ -11,6 +16,15 @@ class BaseAPI implements BaseAPIImpl {
 
   BaseAPI({Dio? dio}) {
     _dio = dio ?? Dio();
+    if (kDebugMode) {
+      _dio?.interceptors.add(
+        PrettyDioLogger(
+          requestBody: true,
+          requestHeader: true,
+          error: true,
+        ),
+      );
+    }
   }
 
   Options getHeaders({bool? useToken}) {
@@ -42,9 +56,19 @@ class BaseAPI implements BaseAPIImpl {
         queryParameters: param,
         options: getHeaders(useToken: useToken),
       );
+
       return _parseResponse(result);
-    } catch (e) {
-      throw Exception(e);
+    } on DioError catch (e) {
+      if (e.error is SocketException) {
+        ConnectionProvider.instance(navigate.navigatorKey.currentContext!)
+            .setConnection(false);
+      } else {
+        if (Platform.environment.containsKey('FLUTTER_TEST') == false) {
+          ConnectionProvider.instance(navigate.navigatorKey.currentContext!)
+              .setConnection(true);
+        }
+      }
+      return APIResponse.failure(e.response?.statusCode ?? 500);
     }
   }
 

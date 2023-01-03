@@ -1,8 +1,12 @@
+import 'package:app/global_providers.dart';
 import 'package:app/injector.dart';
 import 'package:app/ui/constant/constant.dart';
+import 'package:app/ui/constant/themes.dart';
 import 'package:app/ui/router/route_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 
 import 'core/untils/navigation/navigation_untlis.dart';
 import 'ui/router/router_generator.dart';
@@ -13,12 +17,24 @@ void main() async {
   /// Setup injector
   await setupLocator();
 
+  /// Registering global providers
+  var providers = await GlobalProviders.register();
+
+  /// Initialize screenutil
   await ScreenUtil.ensureScreenSize();
-  runApp(const MyApp());
+
+  runApp(MyApp(
+    providers: providers,
+  ));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final List<dynamic> providers;
+
+  const MyApp({
+    super.key,
+    required this.providers,
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -27,22 +43,28 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Welcome App',
-      navigatorKey: locator<NavigationUtils>().navigatorKey,
-      themeMode: ThemeMode.light,
-      builder: (ctx, child) {
-        setupScreenUtil(ctx);
-        return MediaQuery(
-          data: MediaQuery.of(ctx).copyWith(textScaleFactor: 1.0),
-          child: ScrollConfiguration(
-            behavior: MyBehavior(),
-            child: child!,
-          ),
-        );
-      },
-      initialRoute: routeSplash,
-      onGenerateRoute: RouterGenerator.generate,
+    return MultiProvider(
+      providers: widget.providers as List<SingleChildWidget>,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Welcome App',
+        navigatorKey: locator<NavigationUtils>().navigatorKey,
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        themeMode: ThemeMode.light,
+        builder: (ctx, child) {
+          setupScreenUtil(ctx);
+          return MediaQuery(
+            data: MediaQuery.of(ctx).copyWith(textScaleFactor: 1.0),
+            child: ScrollConfiguration(
+              behavior: MyBehavior(),
+              child: child!,
+            ),
+          );
+        },
+        initialRoute: routeSplash,
+        onGenerateRoute: RouterGenerator.generate,
+      ),
     );
   }
 }

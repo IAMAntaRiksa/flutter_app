@@ -15,4 +15,23 @@ class RestaurantService {
         (data) => data.map((e) => RestaurantModel.fromJson(e)).toList(),
         "restaurants");
   }
+
+  Future<ApiReslut<RestaurantModel>> getRestaurant(String id) async {
+    APIResponse response =
+        await api.get(api.endpoint.getRestaurant.replaceAll(":id", id));
+
+    return ApiReslut<RestaurantModel>.fromJson(
+        response.data, (data) => RestaurantModel.fromJson(data), "restaurant");
+  }
+
+  Future<ApiResultList<RestaurantModel>> searchRestaurants(
+      String keyword) async {
+    APIResponse response =
+        await api.get(api.endpoint.searchRestaurant, param: {"q": keyword});
+
+    return ApiResultList<RestaurantModel>.fromJson(
+        response.data,
+        (data) => data.map((e) => RestaurantModel.fromJson(e)).toList(),
+        "restaurants");
+  }
 }
