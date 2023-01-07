@@ -3,6 +3,7 @@ import 'package:app/ui/screen/dashboard/dashboard_screen.dart';
 import 'package:app/ui/screen/restaurant/restaurant_detail_screen.dart';
 import 'package:app/ui/screen/restaurant/restaurant_search_screen.dart';
 import 'package:app/ui/screen/restaurant/resturant_cities_screen.dart';
+import 'package:app/ui/screen/setting/setting_screen.dart';
 import 'package:app/ui/screen/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -26,6 +27,11 @@ class RouterGenerator {
         return MaterialPageRoute(
           builder: (_) => const SplashScreen(),
           settings: const RouteSettings(name: routeSplash),
+        );
+      case routeSetting:
+        return MaterialPageRoute(
+          builder: (_) => const SettingScreen(),
+          settings: const RouteSettings(name: routeSetting),
         );
 
       /// Restaurant group

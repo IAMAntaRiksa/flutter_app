@@ -40,7 +40,7 @@ class _RestaurantInitSearchScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: isDarkTheme(context) ? grayDarkColor : primaryColor,
+        backgroundColor: isDarkTheme(context) ? blackGrayColor : primaryColor,
         title: _searchWidget(),
         elevation: 0,
         leading: IconButton(

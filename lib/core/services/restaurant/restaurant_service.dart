@@ -2,6 +2,8 @@ import 'package:app/core/data/base_api.dart';
 import 'package:app/core/models/api/api_response.dart';
 import 'package:app/core/models/api/api_result_model.dart';
 import 'package:app/core/models/restaurant/restaurant_model.dart';
+import 'package:app/core/models/review/create_review_model.dart';
+import 'package:app/core/models/review/review_model.dart';
 
 class RestaurantService {
   BaseAPI api;
@@ -33,5 +35,16 @@ class RestaurantService {
         response.data,
         (data) => data.map((e) => RestaurantModel.fromJson(e)).toList(),
         "restaurants");
+  }
+
+  Future<ApiResultList<ReviewModel>> createReview(
+      CreateReviewModel data) async {
+    APIResponse response =
+        await api.post(api.endpoint.createReview, data: data.toJson());
+
+    return ApiResultList<ReviewModel>.fromJson(
+        response.data,
+        (data) => data.map((e) => ReviewModel.fromJson(e)).toList(),
+        "customerReviews");
   }
 }

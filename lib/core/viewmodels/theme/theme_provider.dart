@@ -17,18 +17,21 @@ class ThemeProvider extends ChangeNotifier {
   ///=========================
 
   /// Instance provider
-  static ThemeProvider instance(BuildContext context) =>
+
+  ThemeProvider instance(BuildContext context) =>
       Provider.of(context, listen: false);
 
-  Future<void> getThemeIsDark(value) async {
+  void getThemeIsDark() async {
     final shared = SharedManager<bool>();
-    final value = await shared.read("theme_mode");
-    _theme = value;
+    final value = await shared.read("theme_dark");
+    _theme = value ?? false;
+    notifyListeners();
   }
 
-  Future<void> setThemeDark(bool value) async {
+  void setThemeDark(bool value) async {
     final shared = SharedManager<bool>();
-    await shared.store("theme_mode", value);
+    await shared.store("theme_dark", value);
     _theme = value;
+    notifyListeners();
   }
 }

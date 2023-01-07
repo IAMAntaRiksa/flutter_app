@@ -1,8 +1,9 @@
 import 'package:app/core/models/restaurant/restaurant_model.dart';
+import 'package:app/core/models/review/create_review_model.dart';
 import 'package:app/core/services/restaurant/restaurant_service.dart';
-import 'package:app/core/untils/navigation/navigation_untlis.dart';
-import 'package:app/core/viewmodels/favorite/favorite_provider.dart';
 import 'package:app/injector.dart';
+import 'package:app/ui/widget/dialog/snackbar_item.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -84,6 +85,7 @@ class RestaurantProvider extends ChangeNotifier {
         await getRestaurants();
       }
       _restaurantFavorites = [];
+
       for (var item in _restaurants!) {
         if (favoritesId.contains(item.id)) {
           _restaurantFavorites!.add(item);
@@ -170,6 +172,22 @@ class RestaurantProvider extends ChangeNotifier {
       _cities = [];
     }
     setOnSearch(false);
+  }
+
+  void createReview(CreateReviewModel data) async {
+    try {
+      final result = await restaurantService.createReview(data);
+      if (result.error == false) {
+        _restaurant!.reviews = result.data;
+        showSnackbar(
+            title: "Successfully create new review", color: Colors.green);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("Error: ${e.toString()}");
+      showSnackbar(
+          title: "Failed creating review", color: Colors.red, isError: true);
+    }
   }
 
   void removeFavorite(String id) {

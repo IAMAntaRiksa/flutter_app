@@ -8,5 +8,6 @@ class GlobalProviders {
   static Future register() async => [
         ChangeNotifierProvider(create: (context) => ConnectionProvider()),
         ChangeNotifierProvider(create: (context) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ];
 }

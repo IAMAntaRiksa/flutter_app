@@ -4,7 +4,7 @@ class ReviewModel extends Serializable {
   final String name;
   final String review;
   final String date;
-  
+
   ReviewModel({
     required this.name,
     required this.review,

@@ -8,6 +8,8 @@ const routeDashboard = "/dashboard";
 /// Splash route
 const routeSplash = "/splash";
 
+const routeSetting = "/setting";
+
 /// Restaurant route
 const routeRestaurant = "/restaurant";
 const routeRestaurantSearch = "/restaurant/search";

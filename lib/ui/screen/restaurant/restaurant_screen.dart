@@ -20,7 +20,7 @@ class RestaurantScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: isDarkTheme(context) ? grayDarkColor : primaryColor,
+        backgroundColor: isDarkTheme(context) ? blackGrayColor : primaryColor,
         elevation: 0,
         title: Text(
           "Restaurant App",
@@ -41,7 +41,7 @@ class RestaurantScreen extends StatelessWidget {
             height: setFontSize(10),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () => navigate.pushTo(routeSetting),
             icon: const Icon(Icons.dark_mode),
             color: Colors.white,
           ),
@@ -68,6 +68,7 @@ class RestaurantBody extends StatelessWidget {
                 "No internet connection,\nplease check your wifi or mobile data",
             iconPathSVG: Assets.images.illustrationNoConnection,
             buttonText: "Retry Again",
+            color: isDarkTheme(context) ? Colors.white : blackColor,
             onClickButton: () {},
           );
         }

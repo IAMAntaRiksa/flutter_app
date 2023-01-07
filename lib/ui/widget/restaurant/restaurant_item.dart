@@ -172,7 +172,7 @@ class RestaurantItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(5),
         image: DecorationImage(
           image: NetworkImage(
-            restaurant.image?.mediumResolution ?? "",
+            restaurant.image?.smallResolution ?? "",
           ),
           fit: BoxFit.cover,
         ),

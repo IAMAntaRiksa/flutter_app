@@ -20,7 +20,7 @@ class ResturantCitiesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: isDarkTheme(context) ? grayDarkColor : primaryColor,
+        backgroundColor: isDarkTheme(context) ? blackGrayColor : primaryColor,
         elevation: 0,
         title: Text(
           "Restaurants in $city",
@@ -61,6 +61,7 @@ class RestaurantCitiesBody extends StatelessWidget {
             title:
                 "No internet connection,\nplease check your wifi or mobile data",
             iconPathSVG: Assets.images.illustrationNoConnection,
+            color: isDarkTheme(context) ? Colors.white : Colors.black,
             buttonText: "Retry Again",
             onClickButton: () => {},
           );

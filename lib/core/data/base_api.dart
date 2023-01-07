@@ -74,8 +74,17 @@ class BaseAPI implements BaseAPIImpl {
 
   @override
   Future<APIResponse> post(String url,
-      {Map<String, dynamic>? param, data, bool? useToken}) {
-    throw UnimplementedError();
+      {Map<String, dynamic>? param, data, bool? useToken}) async {
+    try {
+      final result = await _dio?.post(
+        url,
+        data: data,
+        queryParameters: param,
+      );
+      return _parseResponse(result);
+    } on DioError catch (e) {
+      return APIResponse.failure(e.response?.statusCode ?? 500);
+    }
   }
 
   @override

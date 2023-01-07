@@ -1,4 +1,5 @@
 import 'package:app/core/viewmodels/favorite/favorite_provider.dart';
+import 'package:app/core/viewmodels/theme/theme_provider.dart';
 import 'package:app/ui/constant/constant.dart';
 import 'package:app/ui/constant/themes.dart';
 import 'package:app/ui/screen/favorite/favorite_screen.dart';
@@ -26,10 +27,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: _bottomNavBar(),
-      body: Consumer<FavoriteProvider>(
-        builder: (context, favoriteProv, _) {
+      body: Consumer2<FavoriteProvider, ThemeProvider>(
+        builder: (context, favoriteProv, themeProv, _) {
           if (favoriteProv.favorites == null && !favoriteProv.onSearch) {
             favoriteProv.getFavorites();
+            themeProv.getThemeIsDark();
+
             return const IdleLoadingCenter();
           }
           return menuList[_currentIndex];

@@ -17,7 +17,7 @@ class SharedManager<T> {
         case List<String>:
           return _prefs.getStringList(key) as T;
         default:
-          return null;
+          return _prefs.get(key) as T;
       }
     }
     return null;

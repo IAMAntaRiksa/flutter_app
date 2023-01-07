@@ -1,3 +1,4 @@
+import 'package:app/core/viewmodels/theme/theme_provider.dart';
 import 'package:app/global_providers.dart';
 import 'package:app/injector.dart';
 import 'package:app/ui/constant/constant.dart';
@@ -45,26 +46,29 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: widget.providers as List<SingleChildWidget>,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Welcome App',
-        navigatorKey: locator<NavigationUtils>().navigatorKey,
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        themeMode: ThemeMode.light,
-        builder: (ctx, child) {
-          setupScreenUtil(ctx);
-          return MediaQuery(
-            data: MediaQuery.of(ctx).copyWith(textScaleFactor: 1.0),
-            child: ScrollConfiguration(
-              behavior: MyBehavior(),
-              child: child!,
-            ),
-          );
-        },
-        initialRoute: routeSplash,
-        onGenerateRoute: RouterGenerator.generate,
-      ),
+      child: Consumer<ThemeProvider>(builder: (context, themeProv, _) {
+        var isDarkTheme = themeProv.theme ?? false;
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Welcome App',
+          navigatorKey: locator<NavigationUtils>().navigatorKey,
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: isDarkTheme ? ThemeMode.dark : ThemeMode.light,
+          builder: (ctx, child) {
+            setupScreenUtil(ctx);
+            return MediaQuery(
+              data: MediaQuery.of(ctx).copyWith(textScaleFactor: 1.0),
+              child: ScrollConfiguration(
+                behavior: MyBehavior(),
+                child: child!,
+              ),
+            );
+          },
+          initialRoute: routeSplash,
+          onGenerateRoute: RouterGenerator.generate,
+        );
+      }),
     );
   }
 }

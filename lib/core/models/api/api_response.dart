@@ -11,7 +11,9 @@ class APIResponse {
 
   factory APIResponse.fromJson(Map<String, dynamic> json) {
     return APIResponse(
-        statusCode: json['statusCode'], success: true, data: json['data']);
+        statusCode: json['statusCode'],
+        success: true,
+        data: json['data'] ?? json);
   }
 
   factory APIResponse.failure(int code) {

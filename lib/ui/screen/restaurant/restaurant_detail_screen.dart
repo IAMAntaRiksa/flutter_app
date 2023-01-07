@@ -1,11 +1,25 @@
+import 'package:app/core/models/category/category_model.dart';
 import 'package:app/core/models/restaurant/restaurant_model.dart';
+import 'package:app/core/models/review/create_review_model.dart';
+import 'package:app/core/models/review/review_model.dart';
 import 'package:app/core/untils/navigation/navigation_untlis.dart';
 import 'package:app/core/viewmodels/connection/connection_provider.dart';
+import 'package:app/core/viewmodels/favorite/favorite_provider.dart';
 import 'package:app/core/viewmodels/restaurant/restaurant_provider.dart';
 import 'package:app/gen/assets.gen.dart';
+import 'package:app/gen/fonts.gen.dart';
 import 'package:app/ui/constant/constant.dart';
+import 'package:app/ui/constant/themes.dart';
+import 'package:app/ui/widget/chip/chip_item.dart';
 import 'package:app/ui/widget/idle/idle_item.dart';
+import 'package:app/ui/widget/idle/loading/loading_listview.dart';
+import 'package:app/ui/widget/restaurant/restaurant_list.dart';
+import 'package:app/ui/widget/review/review_item.dart';
+import 'package:app/ui/widget/textfield/custom_textfield.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class RestaurantDetailScreen extends StatelessWidget {
@@ -44,10 +58,10 @@ class RestaurantInitDetailScreen extends StatelessWidget {
                   "No internet connection,\nplease check your wifi or mobile data",
               iconPathSVG: Assets.images.illustrationNoConnection,
               buttonText: "Retry Again",
+              color: isDarkTheme(context) ? Colors.white : blackColor,
               onClickButton: () => {},
             );
           }
-
           if (restaurantProv.restaurant == null && !restaurantProv.onSearch) {
             restaurantProv.getRestaurant(id);
             return const IdleLoadingCenter();
@@ -75,65 +89,39 @@ class RestaurantInitDetailScreen extends StatelessWidget {
 
 class RestaurantDetailSliverBody extends StatelessWidget {
   final RestaurantModel restaurant;
-
-  const RestaurantDetailSliverBody({
-    Key? key,
-    required this.restaurant,
-  }) : super(key: key);
+  const RestaurantDetailSliverBody({super.key, required this.restaurant});
 
   @override
   Widget build(BuildContext context) {
     return NestedScrollView(
-        body: RestaurantDetailContentBody(
-          restaurant: restaurant,
-        ),
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return <Widget>[
-            SliverAppBar(
-              elevation: 0,
-              expandedHeight: deviceHeight * 0.4,
-              floating: false,
-              pinned: true,
-              title: Text(
-                restaurant.name,
-                style: styleTitle.copyWith(
-                  fontSize: setFontSize(45),
-                  color: blackColor,
-                ),
+      body: RestaurantDetailContentBody(
+        restaurant: restaurant,
+      ),
+      headerSliverBuilder: (context, innerBoxIsScrolled) {
+        return <Widget>[
+          SliverAppBar(
+            elevation: 0,
+            expandedHeight: deviceHeight * 0.4,
+            floating: false,
+            pinned: true,
+            title: Text(
+              restaurant.name,
+              style: styleTitle.copyWith(
+                fontSize: setFontSize(50),
+                color: isDarkTheme(context) ? Colors.white : Colors.white,
               ),
-              leading: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: grayColor.withOpacity(0.4),
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Material(
-                    type: MaterialType.transparency,
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => navigate.pop(),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Icon(
-                        Icons.keyboard_arrow_left,
-                        color: blackColor,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              flexibleSpace: _flexibleSpace(),
-              backgroundColor: Colors.white,
-            )
-          ];
-        });
+            ),
+            backgroundColor:
+                isDarkTheme(context) ? blackGrayColor : primaryColor,
+            foregroundColor: Colors.white,
+            flexibleSpace: _flexibleSpace(context),
+          ),
+        ];
+      },
+    );
   }
 
-  Widget _flexibleSpace() {
+  Widget _flexibleSpace(BuildContext context) {
     return FlexibleSpaceBar(
       centerTitle: true,
       collapseMode: CollapseMode.pin,
@@ -147,7 +135,7 @@ class RestaurantDetailSliverBody extends StatelessWidget {
             child: Hero(
               tag: restaurant.id,
               child: Image.network(
-                restaurant.image?.mediumResolution ?? "",
+                restaurant.image?.smallResolution ?? "",
                 fit: BoxFit.cover,
               ),
             ),
@@ -158,8 +146,8 @@ class RestaurantDetailSliverBody extends StatelessWidget {
             right: 0,
             child: Container(
               height: setHeight(80),
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: isDarkTheme(context) ? blackBGColor : Colors.white,
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(50),
                 ),
@@ -199,6 +187,20 @@ class RestaurantDetailSliverBody extends StatelessWidget {
                     horizontal: setWidth(30),
                     vertical: setHeight(30),
                   ),
+                  child: AnimatedCrossFade(
+                    firstChild: Icon(
+                      Icons.favorite,
+                      color: primaryColor,
+                      size: 20,
+                    ),
+                    secondChild: Icon(
+                      Icons.favorite_border,
+                      color: primaryColor,
+                      size: 20,
+                    ),
+                    crossFadeState: CrossFadeState.showFirst,
+                    duration: const Duration(milliseconds: 200),
+                  ),
                 ),
               ),
             ),
@@ -223,10 +225,510 @@ class RestaurantDetailContentBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-              "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis,"),
+          _RestaurantDetailInfoWidget(
+            restaurant: restaurant,
+          ),
+          _RestaurantDetailMenuWidget(
+            restaurant: restaurant,
+          ),
+          _RestaurantDetailReviewWidget(
+            reviews: restaurant.reviews,
+          ),
+          _RestaurantDetailRecommendationsCityWidget(
+            city: restaurant.city,
+            id: restaurant.id,
+          ),
           SizedBox(
             height: deviceHeight * 0.1,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RestaurantDetailRecommendationsCityWidget extends StatelessWidget {
+  final String city;
+  final String id;
+
+  const _RestaurantDetailRecommendationsCityWidget(
+      {Key? key, required this.city, required this.id})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: setWidth(40),
+          ),
+          child: Text(
+            "Another Restaurants in $city",
+            style: styleTitle.copyWith(
+              color: isDarkTheme(context) ? Colors.white : darkColor,
+              fontSize: setFontSize(35),
+            ),
+          ),
+        ),
+        Consumer<RestaurantProvider>(
+          builder: (context, restaurantProv, _) {
+            if (restaurantProv.restaurants == null &&
+                !restaurantProv.onSearch) {
+              restaurantProv.getRestaurants();
+              return const LoadingListView();
+            }
+            if (restaurantProv.restaurants == null && restaurantProv.onSearch) {
+              return const LoadingListView();
+            }
+
+            if (restaurantProv.restaurants!.isEmpty) {
+              return IdleNoItemCenter(
+                title: "Restaurant not found",
+                iconPathSVG: Assets.images.illustrationNotfound,
+              );
+            }
+            return RestaurantListWidget(
+              restaurants: restaurantProv.restaurants!
+                  .where((element) => element.city == city && element.id != id)
+                  .toList(),
+              useReplacement: true,
+            );
+          },
+        )
+      ],
+    );
+  }
+}
+
+class _RestaurantDetailReviewWidget extends StatefulWidget {
+  final List<ReviewModel>? reviews;
+  const _RestaurantDetailReviewWidget({Key? key, required this.reviews})
+      : super(key: key);
+
+  @override
+  State<_RestaurantDetailReviewWidget> createState() =>
+      _RestaurantDetailReviewWidgetState();
+}
+
+class _RestaurantDetailReviewWidgetState
+    extends State<_RestaurantDetailReviewWidget> {
+  var reviewController = TextEditingController();
+
+  void sendReview() {
+    if (reviewController.text.isNotEmpty) {
+      final resturantProv = RestaurantProvider.instance(context);
+      resturantProv.createReview(
+        CreateReviewModel(
+          id: resturantProv.restaurant!.id,
+          name: "Testing",
+          review: reviewController.text,
+        ),
+      );
+      reviewController.clear();
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: setWidth(40),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Reviews",
+            style: styleTitle.copyWith(
+              color: isDarkTheme(context) ? Colors.white : darkColor,
+              fontSize: setFontSize(35),
+            ),
+          ),
+          SizedBox(
+            height: setHeight(20),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: CustomTextField(
+                  controller: reviewController,
+                  autoFocus: false,
+                  hintText: "Write your review",
+                  onSubmit: (value) {},
+                ),
+              ),
+              SizedBox(
+                width: setWidth(30),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: primaryColor,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Material(
+                  type: MaterialType.transparency,
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => sendReview(),
+                    borderRadius: BorderRadius.circular(5),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: setWidth(35),
+                        vertical: setHeight(18),
+                      ),
+                      child: const Icon(
+                        Icons.send,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+          SizedBox(
+            height: setHeight(40),
+          ),
+          widget.reviews!.isEmpty
+              ? IdleNoItemCenter(
+                  title: "No review",
+                  iconPathSVG: Assets.images.illustrationNotfound,
+                )
+              : ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: widget.reviews!.length,
+                  padding: EdgeInsets.zero,
+                  itemBuilder: (context, index) {
+                    final review = widget.reviews?[index];
+                    return ReviewItem(
+                      review: review!,
+                    );
+                  },
+                )
+        ],
+      ),
+    );
+  }
+}
+
+class _RestaurantDetailMenuWidget extends StatelessWidget {
+  final RestaurantModel restaurant;
+  _RestaurantDetailMenuWidget({Key? key, required this.restaurant})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        vertical: setHeight(40),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: setWidth(40),
+            ),
+            child: Text(
+              "Menu",
+              style: styleTitle.copyWith(
+                color: isDarkTheme(context) ? Colors.white : darkColor,
+                fontSize: setFontSize(35),
+              ),
+            ),
+          ),
+          _menuItems(
+            iconPath: Assets.icons.iconFood,
+            title: "Foods",
+            items: restaurant.menus != null
+                ? restaurant.menus!.foods.map((e) => e.name).toList()
+                : [],
+          ),
+          _menuItems(
+            iconPath: Assets.icons.iconDrink,
+            title: "Drinks",
+            items: restaurant.menus != null
+                ? restaurant.menus!.drinks.map((e) => e.name).toList()
+                : [],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _menuItems({
+    required String iconPath,
+    required String title,
+    required List<String> items,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: setWidth(40),
+          ),
+          child: Row(
+            children: [
+              SvgPicture.asset(
+                iconPath,
+                width: setWidth(40),
+                height: setHeight(40),
+                color: primaryColor,
+              ),
+              SizedBox(
+                width: setWidth(10),
+              ),
+              Text(
+                title,
+                style: styleTitle.copyWith(
+                  fontSize: setFontSize(35),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: setHeight(10),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: items
+                .asMap()
+                .map((index, value) => MapEntry(
+                    index,
+                    ChipItem(
+                      name: value,
+                      isFirst: index == 0,
+                      onClick: () {},
+                    )))
+                .values
+                .toList(),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class _RestaurantDetailCategoryWidget extends StatelessWidget {
+  final List<CategoryModel>? categories;
+  const _RestaurantDetailCategoryWidget({
+    Key? key,
+    required this.categories,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _menuItems(
+      context: context,
+      title: "Category",
+      iconPath: Assets.icons.iconFood,
+      items: categories != null ? categories!.map((e) => e.name).toList() : [],
+    );
+  }
+
+  Widget _menuItems({
+    required BuildContext context,
+    required String title,
+    required String iconPath,
+    required List<String> items,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: styleTitle.copyWith(
+            fontSize: setFontSize(35),
+            color: isDarkTheme(context) ? Colors.white : blackColor,
+          ),
+        ),
+        SizedBox(
+          height: setHeight(10),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: items
+                .asMap()
+                .map((index, value) => MapEntry(
+                    index,
+                    ChipItem(
+                      name: value,
+                      isFirst: false,
+                      onClick: () {},
+                    )))
+                .values
+                .toList(),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class _RestaurantDetailInfoWidget extends StatefulWidget {
+  final RestaurantModel restaurant;
+  const _RestaurantDetailInfoWidget({required this.restaurant});
+
+  @override
+  State<_RestaurantDetailInfoWidget> createState() =>
+      _RestaurantDetailInfoWidgetState();
+}
+
+class _RestaurantDetailInfoWidgetState
+    extends State<_RestaurantDetailInfoWidget> {
+  bool viewMore = false;
+  void toggleViewMore() {
+    setState(() {
+      viewMore = !viewMore;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: setWidth(40),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.restaurant.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: styleTitle.copyWith(
+              fontSize: setFontSize(55),
+              color: isDarkTheme(context) ? Colors.white : Colors.black,
+            ),
+          ),
+          SizedBox(
+            height: setHeight(5),
+          ),
+          Row(
+            children: [
+              RatingBar(
+                initialRating: widget.restaurant.rating,
+                minRating: 1,
+                direction: Axis.horizontal,
+                allowHalfRating: true,
+                ignoreGestures: true,
+                itemCount: 5,
+                itemSize: 13,
+                ratingWidget: RatingWidget(
+                  full: const Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                  ),
+                  half: const Icon(
+                    Icons.star_half,
+                    color: Colors.amber,
+                  ),
+                  empty: const Icon(
+                    Icons.star_border,
+                    color: Colors.amber,
+                  ),
+                ),
+                onRatingUpdate: (rating) {
+                  debugPrint(rating.toString());
+                },
+              ),
+              Text(
+                " (${widget.restaurant.rating.toString()})",
+                style: styleSubtitle.copyWith(
+                  fontSize: setFontSize(30),
+                  color: grayDarkColor,
+                ),
+              )
+            ],
+          ),
+          SizedBox(
+            height: setHeight(10),
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.location_on,
+                color: primaryColor,
+                size: 15,
+              ),
+              SizedBox(
+                width: setWidth(5),
+              ),
+              Expanded(
+                child: Text(
+                  (widget.restaurant.address!.isNotEmpty
+                          ? "${widget.restaurant.address}, "
+                          : "") +
+                      widget.restaurant.city,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: styleSubtitle.copyWith(
+                    fontSize: setFontSize(35),
+                    color: isDarkTheme(context) ? Colors.white : grayDarkColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: setHeight(10),
+            ),
+            child: Divider(
+              color: blackColor.withOpacity(0.5),
+            ),
+          ),
+          _RestaurantDetailCategoryWidget(
+            categories: widget.restaurant.categories,
+          ),
+          SizedBox(
+            height: setHeight(10),
+          ),
+          Text(
+            "Description",
+            style: styleTitle.copyWith(
+              fontSize: setFontSize(38),
+              color: isDarkTheme(context) ? Colors.white : blackColor,
+            ),
+          ),
+          SizedBox(
+            height: setHeight(10),
+          ),
+          InkWell(
+            onTap: () => toggleViewMore(),
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            child: RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                  text: viewMore == true
+                      ? widget.restaurant.description
+                      : "${widget.restaurant.description.substring(0, widget.restaurant.description.length ~/ 2)}...",
+                  style: styleSubtitle.copyWith(
+                    fontSize: setFontSize(38),
+                    color: isDarkTheme(context) ? Colors.white : blackColor,
+                    fontFamily: FontFamily.nunitoSans,
+                  ),
+                ),
+                TextSpan(
+                  text: viewMore == false ? "View More" : "",
+                  style: styleTitle.copyWith(
+                    fontSize: setFontSize(38),
+                    color: primaryColor,
+                    fontFamily: FontFamily.nunitoSans,
+                  ),
+                )
+              ]),
+            ),
           ),
         ],
       ),
